@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket客户端</title>
+</head>
+<body>
+<script type="text/javascript">
+    var socket;
+    var id1;
+    var id2;
+    if (window.WebSocket){
+        socket=new WebSocket("ws://localhost:8888/ws");
+        socket.onmessage=function (event) {
+            var ta=document.getElementById("responseText");
+            ta.value=ta.value+"\n"+event.data;
+            var te = event.data;
+            console.log(te);
+            if (te.length <12)
+            {
+                id1 = te
+                console.log("tank1:"+id1);
+
+            }else if (te.length>13 && te.length < 20) {
+                var s=te.split(":");
+                if (s[0] === id1)
+                {
+                   id2 = s[1];
+                   console.log("tank2:"+id2);
+                }else{
+                    id2 = s[0];
+                    console.log("tank2:"+id2);
+                }
+            }else if (te.length > 20) {
+                var s1 = te.split(";");
+                console.log("s1[0]:"+s1[0])
+                console.log("s1[1]:"+s1[1])
+                console.log("s1[2]:"+s1[2])
+                if (s1[0] === id1)
+                {
+                    if (s1[1] === 'aaaa')
+                    {
+                        console.log("tank1:"+id1+":"+s1[2]);
+                    }
+                }else {
+                    if (s1[1] === 'aaaa')
+                    {
+                        console.log("tank2:"+id2+":"+s1[2]);
+                    }
+                }
+            }
+
+        }
+
+        socket.onopen=function (event) {
+            var message ='id';
+            socket.send(message);
+            var ta=document.getElementById("responseText");
+            ta.value="连接开启";
+
+        }
+        socket.onclose=function (ev) {
+            var ta=document.getElementById("responseText");
+            ta.value=ta.value+"\n"+"连接断掉";
+        }
+    } else {
+        alert('浏览器不支持WebSocket!')
+    }
+    function send(message) {
+        if (!window.WebSocket){
+            return;
+        }
+        if (socket.readyState==WebSocket.OPEN){
+            socket.send(message);
+        }else {
+            alert("连接未开启");
+        }
+    }
+</script>
+<form onsubmit="return false">
+    <textarea name="message" style="width: 400px;height:200px"></textarea>
+    <input type="button" value="发送数据" onclick="send(this.form.message.value)">
+    <h3>服务端输出</h3>
+    <textarea id="responseText" style="width: 400px;height:300px"></textarea>
+    <input type="button" onclick="javascript:document.getElementById('responseText').value=''" value="清空内容">
+</form>
+</body>
+</html>
